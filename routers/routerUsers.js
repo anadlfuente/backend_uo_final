@@ -1,0 +1,60 @@
+const express = require('express');
+
+const routerUsers= express.Router();
+const database = require("../database")
+
+routerUsers.get("/", (req,res)=>{
+   res.send("patata")
+})
+
+routerUsers.post("/", async (req,res)=>{
+    let email=req.body.email
+    let password= req.body.password
+    let name= req.body.name
+    let errors=[]
+
+    if ( email == undefined){
+        errors.push("email is not found in the body")
+    }
+
+    if ( password == undefined){
+        errors.push("password is not found in the body")
+    }else if ( password.length <= 5){
+        errors.push("password should be at least 6 characters long")
+    }
+
+    if ( name == undefined){
+        errors.push("name is not found in the body")
+    }
+
+    if ( errors.length > 0){
+        return res.status(400).json({error:errors})
+    }
+
+    //Connect to the SQL database 
+
+    let useradded= null;
+    try{
+        await database.connect()
+
+        let usersEmail = await database.query("SELECT email FROM users WHERE email = ?", [email])
+
+        if (usersEmail.length > 0){
+            database.disConnect()
+            return res.status(400).json({error: "Already a user with that email"})
+        }
+        useradded = await database.query('INSERT INTO users (email,name,password) VALUES (?,?,?)',
+        [email,name,password]);
+
+        await database.disConnect();
+        res.json({ inserted: useradded });
+
+    } catch (error) {
+        await database.disConnect();
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+)
+
+
+module.exports=routerUsers
