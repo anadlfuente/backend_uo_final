@@ -3,9 +3,8 @@ const express = require('express');
 const routerUsers= express.Router();
 const database = require("../database")
 
-routerUsers.get("/", (req,res)=>{
-   res.send("patata")
-})
+const activeApiKeys = require("../activeApiKeys")
+const jwt = require("jsonwebtoken");
 
 routerUsers.post("/", async (req,res)=>{
     let email=req.body.email
@@ -78,7 +77,7 @@ routerUsers.post("/login", async (req,res)=>{
     database.connect()
 
     try{
-        userselected = await database.query("SELECT email FROM users WHERE email = ? AND password = ?",
+        userselected = await database.query("SELECT email,name,id FROM users WHERE email = ? AND password = ?",
         [email,password])
 
     } catch (err) {
@@ -92,7 +91,17 @@ routerUsers.post("/login", async (req,res)=>{
 
     database.disConnect();
 
-    return res.json({logged: userselected})
+    //Create ApiKey for session logged
+
+    let ApiKey= jwt.sign(
+        {
+            email: userselected[0].email,
+            id: userselected[0].id,
+            name: userselected[0].name
+        },"secretcode");
+    
+    activeApiKeys.push(ApiKey)
+    return res.json({logged: userselected })
 }
 )
 

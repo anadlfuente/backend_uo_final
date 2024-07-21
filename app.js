@@ -1,5 +1,7 @@
 const express = require("express")
 const port = 4000
+const jwt = require("jsonwebtoken");
+const activeApiKeys = require("./activeApiKeys")
 const cors = require("cors")
 const database = require("./database")
 
