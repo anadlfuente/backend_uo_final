@@ -101,7 +101,19 @@ routerUsers.post("/login", async (req,res)=>{
         },"secretcode");
     
     activeApiKeys.push(ApiKey)
-    return res.json({logged: userselected })
+    return res.json({logged: [userselected, ApiKey]})
+}
+)
+
+routerUsers.post("/disconnect", async (req,res)=>{
+    let indexApiKey = activeApiKeys.indexOf(req.query.ApiKey);
+
+    if (indexApiKey > -1){
+        activeApiKeys.splice(indexApiKey,1); //remove ApiKey from the list;
+        res.json({removed: true})
+    }else{
+        return res.status(400).json({error: "user not found in list"})
+    }
 }
 )
 
