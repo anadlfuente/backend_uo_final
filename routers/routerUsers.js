@@ -56,5 +56,45 @@ routerUsers.post("/", async (req,res)=>{
 }
 )
 
+routerUsers.post("/login", async (req,res)=>{
+    let email=req.body.email
+    let password= req.body.password
+    let errors=[]
+
+    if ( email == undefined){
+        errors.push("email is not found in the body")
+    }
+
+    if ( password == undefined){
+        errors.push("password is not found in the body")
+    }
+
+    if ( errors.length > 0){
+        return res.status(400).json({error:errors})
+    }
+
+    //Connect to the SQL database 
+    let userselected= null;
+    database.connect()
+
+    try{
+        userselected = await database.query("SELECT email FROM users WHERE email = ? AND password = ?",
+        [email,password])
+
+    } catch (err) {
+        await database.disConnect();
+        res.status(400).json({ error: err });
+    }
+
+    if (userselected.length == 0){
+        return res.status(401).json({error: "invalid email or user; not found un database"})
+    }
+
+    database.disConnect();
+
+    return res.json({logged: userselected})
+}
+)
+
 
 module.exports=routerUsers
