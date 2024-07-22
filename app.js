@@ -12,6 +12,7 @@ const database = require("./database")
 const app = express()
 
 const routerUsers= require("./routers/routerUsers")
+const routerPresents= require("./routers/routerPresents")
 
 app.use(cors())
 app.options('*', cors());
@@ -25,7 +26,7 @@ app.use(["/presents"] ,(req,res,next)=>{
 		res.status(401).json({ error: "no apiKey" });
 		return 
 	}
-	let infoInApiKey = jwt.verify(apiKey, "secret");
+	let infoInApiKey = jwt.verify(apiKey, "secretcode");
 	if ( infoInApiKey == undefined || activeApiKeys.indexOf(apiKey) == -1){
 		res.status(401).json({ error: "invalid apiKey" });
 		return 	
@@ -37,7 +38,7 @@ app.use(["/presents"] ,(req,res,next)=>{
 })
 
 app.use("/users", routerUsers)
-
+app.use("/presents", routerPresents)
 
 app.listen (port, () =>{
     console.log("Servidor activo en "+port)
