@@ -17,6 +17,24 @@ app.use(cors())
 app.options('*', cors());
 app.use(express.json())
 
+//Middleware
+app.use(["/presents"] ,(req,res,next)=>{
+
+	let apiKey = req.query.apiKey
+	if ( apiKey == undefined ){
+		res.status(401).json({ error: "no apiKey" });
+		return 
+	}
+	let infoInApiKey = jwt.verify(apiKey, "secret");
+	if ( infoInApiKey == undefined || activeApiKeys.indexOf(apiKey) == -1){
+		res.status(401).json({ error: "invalid apiKey" });
+		return 	
+	}
+
+	// desencrypted in req
+	req.infoInApiKey = infoInApiKey;
+  next()
+})
 
 app.use("/users", routerUsers)
 
