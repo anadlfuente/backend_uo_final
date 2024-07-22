@@ -1,8 +1,12 @@
-const express = require("express")
-const port = 4000
+//Install libraries
+const express = require("express");
+const cors = require("cors");
 const jwt = require("jsonwebtoken");
+
+const port = 4000
+
+// Add list of ApiKeys and database
 const activeApiKeys = require("./activeApiKeys")
-const cors = require("cors")
 const database = require("./database")
 
 const app = express()

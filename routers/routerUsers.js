@@ -101,7 +101,12 @@ routerUsers.post("/login", async (req,res)=>{
         },"secretcode");
     
     activeApiKeys.push(ApiKey)
-    return res.json({logged: [userselected, ApiKey]})
+    return res.json({
+        ApiKey: ApiKey,
+        id: userselected[0].id,
+        email: userselected[0].email,
+        name: userselected[0].name
+    })
 }
 )
 
