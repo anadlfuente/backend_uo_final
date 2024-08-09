@@ -111,7 +111,7 @@ routerUsers.post("/login", async (req,res)=>{
 )
 
 routerUsers.post("/disconnect", async (req,res)=>{
-    let indexApiKey = activeApiKeys.indexOf(req.query.ApiKey);
+    let indexApiKey = activeApiKeys.indexOf(req.query.apiKey);
 
     if (indexApiKey > -1){
         activeApiKeys.splice(indexApiKey,1); //remove ApiKey from the list;

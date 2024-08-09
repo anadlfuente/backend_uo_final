@@ -52,11 +52,30 @@ routerPresents.post("/", async (req,res) => {
     }
 })
 
-routerPresents.get("/",async (req,res)=>{
+routerPresents.get("/:userEmail?",async (req,res)=>{
     let emailUser=req.infoInApiKey.email
+    let emailUserquery=req.query.userEmail
+
     if ( emailUser == undefined){
         res.status(400).json({error:"name is not found in the body"})
     }
+
+    if (emailUserquery != undefined){
+        try{
+            await database.connect()
+    
+            let PresentList = await database.query("SELECT presents.* FROM presents WHERE presents.emailUser = ?",
+                [emailUserquery])
+    
+            await database.disConnect();
+            res.json({ present: PresentList });
+    
+        } catch (error) {
+            await database.disConnect();
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    }
+
     try{
         await database.connect()
 
@@ -71,4 +90,5 @@ routerPresents.get("/",async (req,res)=>{
         res.status(500).json({ error: "Internal Server Error" });
     }
 })
+
 module.exports=routerPresents
