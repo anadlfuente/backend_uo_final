@@ -68,7 +68,7 @@ routerPresents.get("/:userEmail?",async (req,res)=>{
                 [emailUserquery])
     
             await database.disConnect();
-            res.json({ present: PresentList });
+            res.json({ presents: PresentList });
     
         } catch (error) {
             await database.disConnect();
@@ -83,7 +83,7 @@ routerPresents.get("/:userEmail?",async (req,res)=>{
             [emailUser])
 
         await database.disConnect();
-        res.json({ present: PresentList });
+        res.json({ presents: PresentList });
 
     } catch (error) {
         await database.disConnect();
