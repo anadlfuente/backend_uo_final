@@ -53,7 +53,7 @@ routerPresents.post("/", async (req,res) => {
 })
 
 
-routerPresents.get("/:userEmail?",async (req,res)=>{
+routerPresents.get("/",async (req,res)=>{
     let emailUser=req.infoInApiKey.email
     let emailUserquery=req.query.userEmail
 
@@ -92,11 +92,11 @@ routerPresents.get("/:userEmail?",async (req,res)=>{
     }
 })
 
-routerPresents.get("/:id?",async (req,res)=>{
-    let id = req.params.id
+routerPresents.get("/:presentId",async (req,res)=>{
+    let id = req.params.presentId
 
     if ( id == undefined){
-        res.status(400).json({error:"name id param"})
+        return res.status(400).json({error:"name id param"})
     }
 
     try{
@@ -104,9 +104,35 @@ routerPresents.get("/:id?",async (req,res)=>{
 
         let PresentDetails = await database.query("SELECT presents.* FROM presents WHERE presents.idPres = ?",
             [id])
-
         await database.disConnect();
-        return res.json({ presents: PresentDetails });
+
+        if (PresentDetails.length === 0) {
+            return res.status(404).json({ error: "No present found with this ID" });
+        }
+
+        return res.json(PresentDetails[0]);
+
+    } catch (error) {
+        await database.disConnect();
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+
+routerPresents.delete("/:id",async (req,res)=>{
+    let deleteid = req.params.id
+
+    if ( deleteid == undefined){
+        return res.status(400).json({error:"name id param"})
+    }
+
+    try{
+        await database.connect()
+
+        let PresentToDelete = await database.query("DELETE FROM presents WHERE presents.idPres = ?",
+            [deleteid])
+        await database.disConnect();
+
+        return res.json({deleted : true});
 
     } catch (error) {
         await database.disConnect();
