@@ -52,6 +52,7 @@ routerPresents.post("/", async (req,res) => {
     }
 })
 
+
 routerPresents.get("/:userEmail?",async (req,res)=>{
     let emailUser=req.infoInApiKey.email
     let emailUserquery=req.query.userEmail
@@ -68,7 +69,7 @@ routerPresents.get("/:userEmail?",async (req,res)=>{
                 [emailUserquery])
     
             await database.disConnect();
-            res.json({ presents: PresentList });
+             return res.json({ presents: PresentList });
     
         } catch (error) {
             await database.disConnect();
@@ -83,7 +84,29 @@ routerPresents.get("/:userEmail?",async (req,res)=>{
             [emailUser])
 
         await database.disConnect();
-        res.json({ presents: PresentList });
+        return res.json({ presents: PresentList });
+
+    } catch (error) {
+        await database.disConnect();
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+
+routerPresents.get("/:id?",async (req,res)=>{
+    let id = req.params.id
+
+    if ( id == undefined){
+        res.status(400).json({error:"name id param"})
+    }
+
+    try{
+        await database.connect()
+
+        let PresentDetails = await database.query("SELECT presents.* FROM presents WHERE presents.idPres = ?",
+            [id])
+
+        await database.disConnect();
+        return res.json({ presents: PresentDetails });
 
     } catch (error) {
         await database.disConnect();
