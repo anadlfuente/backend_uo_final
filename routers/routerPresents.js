@@ -128,11 +128,21 @@ routerPresents.delete("/:id",async (req,res)=>{
     try{
         await database.connect()
 
-        let PresentToDelete = await database.query("DELETE FROM presents WHERE presents.idPres = ?",
+        let PresentDetails= await database.query("SELECT presents.* FROM presents WHERE presents.idPres = ?",
             [deleteid])
-        await database.disConnect();
 
-        return res.json({deleted : true});
+        if (PresentDetails[0].emailUser == req.infoInApiKey.email){
+            let PresentToDelete = await database.query("DELETE FROM presents WHERE presents.idPres = ?",
+                [deleteid])
+            
+            await database.disConnect();
+
+            return res.json({deleted : true});
+        }else {
+            await database.disConnect();
+            return res.status(400).json({ error: "Present is not of this user" });
+        }
+
 
     } catch (error) {
         await database.disConnect();
