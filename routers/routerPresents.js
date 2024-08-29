@@ -150,4 +150,66 @@ routerPresents.delete("/:id",async (req,res)=>{
     }
 })
 
+routerPresents.put("/:id",async (req,res)=>{
+    let id = req.params.id
+    let name= req.body.name
+    let description = req.body.description
+    let website = req.body.website
+    let price = parseFloat(req.body.price)
+
+    if ( id == undefined){
+        return res.status(400).json({error:"name id param"})
+    }
+
+    let errors=[]
+
+    if ( name == undefined){
+        errors.push("name is not found in the body")
+    }
+
+    if ( description == undefined){
+        errors.push("description is not found in the body")
+    }
+
+    if ( website == undefined){
+        errors.push("URL of the present not found in the body")
+    }
+
+    if ( price == undefined){
+        errors.push("price is not found in the body")
+    }else if (isNaN(price) == true){
+        errors.push("Price not a valid format")
+    }
+
+    if ( errors.length > 0){
+        return res.status(400).json({error:errors})
+    }
+
+    //Modify Present in database.
+
+    try{
+        await database.connect()
+
+        let PresentDetails= await database.query("SELECT presents.* FROM presents WHERE presents.idPres = ?",
+            [id])
+
+        if (PresentDetails[0].emailUser == req.infoInApiKey.email){
+            let PresentToModify = await database.query("UPDATE presents SET present= ?, description= ?, url= ?, price= ? WHERE  presents.idPres = ?",
+                [name,description,website,price,id])
+            
+            await database.disConnect();
+
+            return res.json({modified : PresentToModify});
+        }else {
+            await database.disConnect();
+            return res.status(400).json({ error: "Present is not of this user" });
+        }
+
+
+    } catch (error) {
+        await database.disConnect();
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+})
+
 module.exports=routerPresents
